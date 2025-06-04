@@ -5,6 +5,7 @@ import { FaPlus, FaFileInvoice, FaEye, FaTruckLoading } from "react-icons/fa";
 import apiClient from "@/services/api/client";
 import { Modal } from "@/components/Modal";
 
+
 interface Supplier {
   _id: string;
   name: string;
@@ -48,6 +49,10 @@ export default function SuppliersPage() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [importForm, setImportForm] = useState<{ supplierId: string; items: { productId: string; quantity: number; unitPrice: number }[] }>({ supplierId: '', items: [] });
   const [products, setProducts] = useState<Product[]>([]);
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+const [additionalPayment, setAdditionalPayment] = useState(0);
+const [updatingPayment, setUpdatingPayment] = useState(false);
+
 
   useEffect(() => {
     fetchSuppliers();
@@ -70,7 +75,15 @@ export default function SuppliersPage() {
     setIsPurchasesLoading(true);
     try {
       const res = await apiClient.get(`/purchases?supplierId=${supplier._id}`);
-      setPurchases(res.data);
+      const purchasesData = res.data;
+      setPurchases(purchasesData);
+  
+      // Tính tổng công nợ từ các phiếu nhập
+      const totalDebt = purchasesData.reduce(
+        (sum: number, p: Purchase) => sum + p.debtRemaining,
+        0
+      );
+      setSelectedSupplier({ ...supplier, debt: totalDebt }); // Cập nhật lại công nợ
     } catch (err) {
       toast.error("Không thể tải lịch sử nhập hàng");
       setPurchases([]);
@@ -78,6 +91,8 @@ export default function SuppliersPage() {
     setIsPurchasesLoading(false);
   };
 
+
+  
   const openImportModal = async (supplier: Supplier) => {
     setImportForm({ supplierId: supplier._id, items: [] });
     setShowImportModal(true);
@@ -233,6 +248,101 @@ export default function SuppliersPage() {
                 </tbody>
               </table>
             )}
+                 {/* Nút mở form cập nhật thanh toán */}
+      <button
+        className="btn btn-primary mb-4"
+        onClick={() => setShowPaymentForm(!showPaymentForm)}
+      >
+        {showPaymentForm ? "Đóng cập nhật thanh toán" : "Cập nhật thanh toán"}
+      </button>
+
+      {/* Form cập nhật thanh toán */}
+      {showPaymentForm && (
+        <form
+          className="mb-6 space-y-3 p-4 border rounded bg-gray-50 dark:bg-gray-700"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (additionalPayment <= 0) {
+              toast.error("Số tiền thanh toán thêm phải lớn hơn 0");
+              return;
+            }
+            if (additionalPayment > selectedSupplier.debt!) {
+              toast.error("Số tiền thanh toán thêm không được lớn hơn công nợ");
+              return;
+            }
+            setUpdatingPayment(true);
+            try {
+              // Giả sử API cập nhật thanh toán có endpoint:
+              // POST /suppliers/{id}/payment với body { amount: additionalPayment }
+              await apiClient.put(`/suppliers/${selectedSupplier._id}/pay`, {
+                amount: additionalPayment,
+              });
+              toast.success("Cập nhật thanh toán thành công");
+              setShowPaymentForm(false);
+              setAdditionalPayment(0);
+              fetchSuppliers();
+              // Cập nhật lại thông tin selectedSupplier (nếu muốn cập nhật công nợ ngay)
+              openDetail(selectedSupplier);
+            } catch (err: any) {
+              toast.error(err?.response?.data?.message || "Lỗi khi cập nhật thanh toán");
+            }
+            setUpdatingPayment(false);
+          }}
+        >
+          <div>
+            <label className="block font-semibold mb-1">Tổng tiền</label>
+            <input
+              type="text"
+              className="input w-full"
+              value={purchases.reduce((sum, p) => sum + p.totalAmount, 0).toLocaleString("vi-VN") + " ₫"}
+              readOnly
+            />
+          </div>
+          <div>
+            <label className="block font-semibold mb-1">Đã thanh toán</label>
+            <input
+              type="text"
+              className="input w-full"
+              value={purchases.reduce((sum, p) => sum + p.paidAmount, 0).toLocaleString("vi-VN") + " ₫"}
+              readOnly
+            />
+          </div>
+          <div>
+            <label className="block font-semibold mb-1">Còn nợ</label>
+            <input
+              type="text"
+              className="input w-full text-red-600"
+              value={purchases.reduce((sum, p) => sum + p.debtRemaining, 0).toLocaleString("vi-VN") + " ₫"}
+              readOnly
+            />
+          </div>
+          <div>
+            <label className="block font-semibold mb-1">Số tiền thanh toán thêm</label>
+            <input
+              type="number"
+              min={1}
+              max={selectedSupplier.debt}
+              className="input w-full"
+              value={additionalPayment}
+              onChange={(e) => setAdditionalPayment(Number(e.target.value))}
+              required
+            />
+          </div>
+          <div className="flex justify-end space-x-2">
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() => setShowPaymentForm(false)}
+              disabled={updatingPayment}
+            >
+              Hủy
+            </button>
+            <button type="submit" className="btn btn-primary" disabled={updatingPayment}>
+              {updatingPayment ? "Đang cập nhật..." : "Cập nhật"}
+            </button>
+          </div>
+        </form>
+      )}
             <div className="flex justify-end mt-4">
               <button className="btn btn-outline" onClick={() => setShowModal(false)}>Đóng</button>
             </div>
