@@ -34,7 +34,7 @@ export default function RegisterPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+          // 'Authorization': `Bearer ${localStorage.getItem('userToken')}`
         },
         body: JSON.stringify({ 
           username, 
@@ -46,11 +46,24 @@ export default function RegisterPage() {
       
       const data = await response.json()
       
-      if (!response.ok) {
+      toast.success('Đăng ký thành công')
+      // Tạo Customer tương ứng với user role customer
+      const response2 = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/customers`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${data.token}` // Sử dụng token từ đăng ký
+        },
+        body: JSON.stringify({ 
+          name: data.name,
+          userId: data._id, // Lưu ID người dùng để liên kết
+          type: 'retail', // Mặc định là khách lẻ
+        }),
+      })
+      if (!response.ok && !response2.ok) {
         throw new Error(data.message || 'Đăng ký thất bại')
       }
-      
-      toast.success('Đăng ký thành công')
+
       router.push('/login')
     } catch (error: any) {
       toast.error(error.message || 'Có lỗi xảy ra khi đăng ký')

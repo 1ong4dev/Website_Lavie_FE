@@ -6,19 +6,17 @@ export interface Customer {
   type: 'retail' | 'agency';
   phone: string;
   address: string;
-  agency_level?: number;
   debt: number;
   empty_debt: number;
+  userId?: string; // ID of the user associated with this customer
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export interface CustomerCreate {
   name: string;
   type: 'retail' | 'agency';
-  phone: string;
-  address: string;
-  agency_level?: number;
+  userId?: string;
 }
 
 export const customerService = {

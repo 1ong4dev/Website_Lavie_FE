@@ -7,6 +7,8 @@ import { getUsers, deleteUser, User } from '@/services/api/userService';
 import UserForm from './UserForm';
 import { formatDate } from '@/utils/formatters';
 
+import { customerService, Customer } from '@/services/api/customerService';
+
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -16,6 +18,8 @@ export default function UsersPage() {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [notification, setNotification] = useState({ show: false, message: '', type: 'success' as 'success' | 'error' });
+
+  const [customers, setCustomers] = useState<Customer[]>([]);
 
   // Load users on component mount
   useEffect(() => {
@@ -27,6 +31,8 @@ export default function UsersPage() {
       setLoading(true);
       const data = await getUsers();
       setUsers(data);
+      const customerData = await customerService.getCustomers();
+      setCustomers(customerData);
       setError('');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Lỗi khi tải danh sách người dùng');
@@ -68,6 +74,11 @@ export default function UsersPage() {
     if (!selectedUser) return;
 
     try {
+      if (selectedUser.role === 'customer') {
+        const customer = customers.find((customer: Customer) => customer.userId === selectedUser._id);
+        if(customer)
+        customerService.deleteCustomer(customer._id);
+      }
       await deleteUser(selectedUser._id);
       setNotification({
         show: true,

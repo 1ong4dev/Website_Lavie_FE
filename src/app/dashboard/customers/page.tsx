@@ -3,20 +3,21 @@
 import { useState, useEffect } from 'react'
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaFilter } from 'react-icons/fa'
 import { toast } from 'react-toastify'
-import { getUsers, User } from '@/services/api/userService'
+import { deleteUser, updateUser, User } from '@/services/api/userService'
 import orderService, { Order } from '@/services/api/orderService'
 
-type Customer = {
-  _id: string
-  name: string
-  type: 'retail' | 'agency'
-  phone: string
-  address: string
-  agency_level?: number
-  debt: number
-  empty_debt: number
-  createdAt: string
-}
+import {customerService, Customer} from '@/services/api/customerService';
+
+// type Customer = {
+//   _id: string
+//   name: string
+//   type: 'retail' | 'agency'
+//   phone: string
+//   address: string
+//   debt: number
+//   empty_debt: number
+//   createdAt: string
+// }
 
 export default function CustomerPage() {
   const [customers, setCustomers] = useState<Customer[]>([])
@@ -30,10 +31,9 @@ export default function CustomerPage() {
   // Form state
   const [formData, setFormData] = useState({
     name: '',
-    type: 'retail',
+    type: 'retail' as 'retail' | 'agency',
     phone: '',
     address: '',
-    agency_level: 1,
   })
 
   useEffect(() => {
@@ -43,8 +43,8 @@ export default function CustomerPage() {
   const fetchCustomers = async () => {
     setIsLoading(true)
     try {
-      const users: User[] = await getUsers()
-      const customers = users.filter(u => u.role === 'customer')
+      // const customers = users.filter(u => u.role === 'customer')
+      const customers: Customer[] = await customerService.getCustomers();
       // Lấy tất cả orders
       const orders: Order[] = await orderService.getOrders()
       // Map user -> customer FE, tính debt và empty_debt
@@ -57,12 +57,12 @@ export default function CustomerPage() {
         return {
           _id: u._id,
           name: u.name,
-          type: 'retail',
-          phone: '',
-          address: '',
-          agency_level: undefined,
+          type: u.type,
+          phone: u.phone,
+          address: u.address,
           debt,
           empty_debt,
+          userId: u.userId,
           createdAt: u.createdAt || '',
         }
       })
@@ -77,7 +77,7 @@ export default function CustomerPage() {
     const { name, value } = e.target
     setFormData({
       ...formData,
-      [name]: name === 'agency_level' ? parseInt(value) : value
+      [name]: value
     })
   }
 
@@ -85,18 +85,18 @@ export default function CustomerPage() {
     e.preventDefault()
 
     // In a real app, this would be an API call
+    const newCustomer: Customer = await customerService.createCustomer(formData);
     // For now, just simulate adding to the list
-    const newCustomer: Customer = {
-      _id: Math.random().toString(36).substring(2, 9),
-      name: formData.name,
-      type: formData.type as 'retail' | 'agency',
-      phone: formData.phone,
-      address: formData.address,
-      agency_level: formData.type === 'agency' ? formData.agency_level : undefined,
-      debt: 0,
-      empty_debt: 0,
-      createdAt: new Date().toISOString()
-    }
+    // const newCustomer: Customer = {
+    //   _id: Math.random().toString(36).substring(2, 9),
+    //   name: formData.name,
+    //   type: formData.type as 'retail' | 'agency',
+    //   phone: formData.phone,
+    //   address: formData.address,
+    //   debt: 0,
+    //   empty_debt: 0,
+    //   createdAt: new Date().toISOString()
+    // }
 
     setCustomers([...customers, newCustomer])
     resetForm()
@@ -110,30 +110,51 @@ export default function CustomerPage() {
     if (!selectedCustomer) return
 
     // In a real app, this would be an API call
+    const updatedCustomers = await customerService.updateCustomer(selectedCustomer._id,formData);
     // For now, just simulate updating the list
-    const updatedCustomers = customers.map(customer =>
-      customer._id === selectedCustomer._id
-        ? {
-          ...customer,
-          name: formData.name,
-          type: formData.type as 'retail' | 'agency',
-          phone: formData.phone,
-          address: formData.address,
-          agency_level: formData.type === 'agency' ? formData.agency_level : undefined,
-        }
-        : customer
-    )
+    // const updatedCustomers = customers.map(customer =>
+    //   customer._id === selectedCustomer._id
+    //     ? {
+    //       ...customer,
+    //       name: formData.name,
+    //       type: formData.type as 'retail' | 'agency',
+    //       phone: formData.phone,
+    //       address: formData.address,
+    //     }
+    //     : customer
+    // )
 
-    setCustomers(updatedCustomers)
+    setCustomers(customers.map(customer => (customer._id === selectedCustomer._id) ? updatedCustomers : customer));
     resetForm()
     setShowEditModal(false)
     toast.success('Cập nhật khách hàng thành công')
   }
 
   const handleDeleteCustomer = async (id: string) => {
-    if (!confirm('Bạn có chắc chắn muốn xóa khách hàng này không?')) return
 
     // In a real app, this would be an API call
+    // Check xem customer hiện tại có tài khoản nào không
+    const customer = customers.find(c => c._id === id);
+    if(customer?.userId)
+    {
+      // Xóa tài khoản liên kết
+    if (!confirm('Khách hàng này có liên kết với một tài khoản, tài khoản đó cũng sẽ bị xóa, bạn có muốn tiếp tục không?')) return
+      try{
+        await deleteUser(customer.userId);
+      }
+      catch (error) {
+        toast.error('Không thể xóa tài khoản liên kết với khách hàng này')
+        return
+      }
+    }
+    else if (!confirm('Bạn có chắc chắn muốn xóa khách hàng này không?')) return
+    try {
+      await customerService.deleteCustomer(id);
+    }
+    catch (error) {
+      toast.error('Không thể xóa khách hàng này')
+    }
+
     // For now, just simulate removing from the list
     setCustomers(customers.filter(customer => customer._id !== id))
     toast.success('Xóa khách hàng thành công')
@@ -146,7 +167,6 @@ export default function CustomerPage() {
       type: customer.type,
       phone: customer.phone,
       address: customer.address,
-      agency_level: customer.agency_level || 1,
     })
     setShowEditModal(true)
   }
@@ -156,8 +176,7 @@ export default function CustomerPage() {
       name: '',
       type: 'retail',
       phone: '',
-      address: '',
-      agency_level: 1,
+      address: ''
     })
     setSelectedCustomer(null)
   }
@@ -213,7 +232,7 @@ export default function CustomerPage() {
               >
                 <option value="all">Tất cả</option>
                 <option value="retail">Khách lẻ</option>
-                <option value="agency">Đại lý</option>
+                <option value="agency">Đại lý cấp 2</option>
               </select>
             </div>
           </div>
@@ -242,7 +261,7 @@ export default function CustomerPage() {
                   {filteredCustomers.length > 0 ? (
                     filteredCustomers.map((customer) => (
                       <tr key={customer._id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-6 py-4 whitespace-nowrap max-w-xs truncate">
                           <div className="text-sm font-medium text-gray-900 dark:text-white">{customer.name}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -251,15 +270,15 @@ export default function CustomerPage() {
                               : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                             }`}>
                             {customer.type === 'agency'
-                              ? `Đại lý cấp ${customer.agency_level}`
+                              ? `Đại lý cấp 2`
                               : 'Khách lẻ'
                             }
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-6 py-4 whitespace-nowrap max-w-xs truncate">
                           <div className="text-sm text-gray-500 dark:text-gray-400">{customer.phone}</div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-6 py-4 whitespace-nowrap max-w-xs truncate">
                           <div className="text-sm text-gray-500 dark:text-gray-400">{customer.address}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -342,25 +361,9 @@ export default function CustomerPage() {
                     required
                   >
                     <option value="retail">Khách lẻ</option>
-                    <option value="agency">Đại lý</option>
+                    <option value="agency">Đại lý cấp 2</option>
                   </select>
                 </div>
-
-                {formData.type === 'agency' && (
-                  <div>
-                    <label htmlFor="agency_level" className="label">Cấp đại lý</label>
-                    <select
-                      id="agency_level"
-                      name="agency_level"
-                      className="input"
-                      value={formData.agency_level}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      <option value="1">Cấp 1</option>
-                    </select>
-                  </div>
-                )}
 
                 <div>
                   <label htmlFor="phone" className="label">Số điện thoại</label>
@@ -447,25 +450,9 @@ export default function CustomerPage() {
                     required
                   >
                     <option value="retail">Khách lẻ</option>
-                    <option value="agency">Đại lý</option>
+                    <option value="agency">Đại lý cấp 2</option>
                   </select>
                 </div>
-
-                {formData.type === 'agency' && (
-                  <div>
-                    <label htmlFor="agency_level" className="label">Cấp đại lý</label>
-                    <select
-                      id="agency_level"
-                      name="agency_level"
-                      className="input"
-                      value={formData.agency_level}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      <option value="1">Cấp 1</option>
-                    </select>
-                  </div>
-                )}
 
                 <div>
                   <label htmlFor="phone" className="label">Số điện thoại</label>

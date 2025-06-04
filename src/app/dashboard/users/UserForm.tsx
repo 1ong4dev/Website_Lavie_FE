@@ -6,6 +6,8 @@ import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { Fragment } from 'react';
 import { createUser, updateUser, User, CreateUserRequest, UpdateUserRequest } from '@/services/api/userService';
 
+import {customerService} from '@/services/api/customerService';
+
 interface UserFormProps {
   user?: User;
   onSave: () => void;
@@ -15,6 +17,11 @@ const roles = [
   { id: 'admin', name: 'Quản trị viên' },
   { id: 'sales', name: 'Nhân viên bán hàng' },
   { id: 'customer', name: 'Khách hàng' },
+];
+
+const types = [
+  { id: 'retail', name: 'Khách hàng lẻ' },
+  { id: 'agency', name: 'Đại lý cấp 2' },
 ];
 
 export default function UserForm({ user, onSave }: UserFormProps) {
@@ -28,6 +35,8 @@ export default function UserForm({ user, onSave }: UserFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedRole, setSelectedRole] = useState(roles[1]);
+
+  const [selectedType, setSelectedType] = useState(types[0]); // Mặc định là khách hàng lẻ
 
   const isEditMode = !!user;
 
@@ -87,6 +96,10 @@ export default function UserForm({ user, onSave }: UserFormProps) {
     }));
   };
 
+  const handleTypeChange = (type: typeof types[0]) => {
+    setSelectedType(type);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -107,7 +120,18 @@ export default function UserForm({ user, onSave }: UserFormProps) {
         
         await updateUser(user._id, updateData);
       } else {
-        await createUser(formData as CreateUserRequest);
+        const response = await createUser(formData as CreateUserRequest);
+        // Tạo cusomer ứng với user role customer
+        if (response.role === 'customer')
+        {
+          customerService.createCustomer({
+            name: response.name,
+            type: selectedType.id as 'retail' || 'agency', // Mặc định là đại lý cấp 2
+            userId: response._id, // Sử dụng username làm userId
+          }).catch(err => {
+            console.error('Error creating customer:', err);
+          });
+        }
       }
       
       onSave();
@@ -127,7 +151,7 @@ export default function UserForm({ user, onSave }: UserFormProps) {
         </div>
       )}
       
-      <div className="space-y-4">
+      <div className="space-y-4 overflow-auto">
         <div>
           <label htmlFor="username" className="block text-sm font-medium text-gray-700">
             Tên đăng nhập <span className="text-red-500">*</span>
@@ -240,6 +264,59 @@ export default function UserForm({ user, onSave }: UserFormProps) {
             <p className="mt-1 text-sm text-red-600">{errors.role}</p>
           )}
         </div>
+        {/* Thêm input chọn loại khách hàng */}
+        {selectedRole.id === 'customer' && (
+        <div>               
+          <label className="block text-sm font-medium text-gray-700">
+            Loại Khách Hàng <span className="text-red-500">*</span>
+          </label>
+          <Listbox value={selectedType} onChange={handleTypeChange} disabled={loading}>
+            <div className="relative mt-1">
+              <Listbox.Button className="relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left border border-gray-300 shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500">
+                <span className="block truncate">{selectedType.name}</span>
+                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                  <ChevronUpDownIcon
+                    className="h-5 w-5 text-gray-400"
+                    aria-hidden="true"
+                  />
+                </span>
+              </Listbox.Button>
+              <Transition
+                as={Fragment}
+                leave="transition ease-in duration-100"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                  {types.map((type) => (
+                    <Listbox.Option
+                      key={type.id}
+                      className={({ active }) =>
+                        `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-primary-100 text-primary-900' : 'text-gray-900'}`
+                      }
+                      value={type}
+                    >
+                      {({ selected }) => (
+                        <>
+                          <span
+                            className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}
+                          >
+                            {type.name}
+                          </span>
+                          {selected ? (
+                            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary-600">
+                              <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                            </span>
+                          ) : null}
+                        </>
+                      )}
+                    </Listbox.Option>
+                  ))}
+                </Listbox.Options>
+              </Transition>
+            </div>
+          </Listbox>
+        </div>)}
       </div>
       
       <div className="mt-6 flex justify-end">
