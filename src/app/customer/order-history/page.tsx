@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { orderService, Order } from '@/services/api/orderService';
+import { customerService } from '@/services/api/customerService';
 
 export default function CustomerOrderHistoryPage() {
   const { user } = useAuth();
@@ -14,7 +15,9 @@ export default function CustomerOrderHistoryPage() {
       try {
         if (!user) return;
         const allOrders = await orderService.getOrders();
-        const customerOrders = allOrders.filter((order) => order.customerId === user.id);
+        const customers = await customerService.getCustomers();
+        const customer = customers.find(c => c.userId === user.id);
+        const customerOrders = allOrders.filter((order) => order.customerId === customer?._id);
         setOrders(customerOrders.sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()));
       } catch (error) {
         // handle error
@@ -56,7 +59,7 @@ export default function CustomerOrderHistoryPage() {
                 <tr key={order._id} className="hover:bg-gray-50">
                   <td className="px-4 py-2 font-medium text-primary-600">{order._id}</td>
                   <td className="px-4 py-2">{new Date(order.orderDate).toLocaleDateString('vi-VN')}</td>
-                  <td className="px-4 py-2">{formatCurrency(order.totalAmount)}</td>
+                  <td className="px-4 py-2">{formatCurrency(order.totalAmount + ((order.returnableIn < order.returnableOut) ? (order.returnableOut - order.returnableIn) * 20000 : 0))}</td>
                   <td className="px-4 py-2">
                     <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                       order.status === 'completed'

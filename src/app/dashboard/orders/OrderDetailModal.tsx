@@ -78,7 +78,6 @@ export default function OrderDetailModal({ orderId, isOpen, onCloseAction, onOrd
   const handleUpdateReturnable = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!order) return
-    
     try {
       await orderService.updateReturnable(order._id, returnableAmount)
       toast.success('Cập nhật vỏ hoàn trả thành công')

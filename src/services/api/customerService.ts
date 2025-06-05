@@ -17,6 +17,9 @@ export interface CustomerCreate {
   name: string;
   type: 'retail' | 'agency';
   userId?: string;
+  debt?: number;
+  phone?: string;
+  address?: string;
 }
 
 export const customerService = {

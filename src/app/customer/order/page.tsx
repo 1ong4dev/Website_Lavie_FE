@@ -6,7 +6,7 @@ import { productService, Product } from '@/services/api/productService';
 import { orderService } from '@/services/api/orderService';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
-import {customerService} from '@/services/api/customerService';
+import {customerService, Customer} from '@/services/api/customerService';
 
 export default function CustomerOrderPage() {
   const { user } = useAuth();
@@ -18,6 +18,7 @@ export default function CustomerOrderPage() {
   const [returnableIn, setReturnableIn] = useState(0); //Long fix
 
   const [isAgency, setIsAgency] = useState(false);
+  const [customer, setCustomer] = useState<Customer | null>(null);
 
   
   useEffect(() => {
@@ -27,9 +28,14 @@ export default function CustomerOrderPage() {
         setProducts(data);
         // Kiểm tra xem người dùng có phải là đại lý hay không
         const customer = (await customerService.getCustomers()).find(c => c.userId === user?.id);
-        if (customer && customer.type === 'agency') {
+        if (customer)
+        {
+          setCustomer(customer);
+          if (customer.type === 'agency') {
           setIsAgency(true);
+          }
         }
+        
       } catch (error) {
         toast.error('Lỗi khi tải sản phẩm');
       } finally {
@@ -107,8 +113,11 @@ export default function CustomerOrderPage() {
         // Tổng tiền thực tế phải trả = tổng tiền hàng - tiền vỏ trả về
         const totalAmount = rawTotalAmount - returnableIn * DEPOSIT_UNIT;
       
+      if(customer)
+      {
+      
       const orderData = {
-        customerId: user.id,
+        customerId: customer._id,
         orderItems: cart.map((item) => ({
           productId: item.product._id,
           quantity: item.quantity,
@@ -126,6 +135,7 @@ export default function CustomerOrderPage() {
       setCart([]);
       setReturnableIn(0);
       router.push('/customer/order-history');
+      }
     } catch (error: any) {
       toast.error('Lỗi khi đặt hàng: ' + (error.message || ''));
     } finally {
@@ -174,7 +184,7 @@ export default function CustomerOrderPage() {
                     <th className="px-4 py-2 text-gray-900">Sản phẩm</th>
                     <th className="px-4 py-2 text-gray-900">Số lượng</th>
                     <th className="px-4 py-2 text-gray-900">Thành tiền</th>
-                    <th className="px-4 py-2 text-gray-900">Vỏ trả</th>
+                    {/* <th className="px-4 py-2 text-gray-900">Vỏ trả</th> */}
                     <th></th>
                   </tr>
                 </thead>
@@ -192,7 +202,7 @@ export default function CustomerOrderPage() {
                         />
                       </td>
                       <td className="px-4 py-2 text-gray-700 text-center">{(((item.product.price * item.quantity) - ((item.returnable_quantity || 0) * 20000)) * (isAgency ? 0.9: 1)).toLocaleString('vi-VN')} đ</td>
-                      <td className="px-4 py-2 text-gray-700 text-center">
+                      {/* <td className="px-4 py-2 text-gray-700 text-center">
                         {item.product.is_returnable ? (
                           <input
                             type="number"
@@ -205,7 +215,7 @@ export default function CustomerOrderPage() {
                         ) : (
                           <span className="text-gray-400">-</span>
                         )}
-                      </td>
+                      </td> */}
                       <td className="px-4 py-2">
                         <button className="text-red-600" onClick={() => removeFromCart(item.product._id)}>
                           Xóa
