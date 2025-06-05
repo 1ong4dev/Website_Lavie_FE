@@ -56,7 +56,6 @@ export default function NewOrderForm({ onOrderCreatedAction, onCancelAction }: N
         type: 'retail', // hoặc lấy từ user nếu có
         phone: u.username, // hoặc lấy trường phone nếu có
         address: '', // hoặc lấy trường address nếu có
-        agency_level: undefined,
         debt: 0,
         empty_debt: 0,
         createdAt: u.createdAt || '',
@@ -279,7 +278,7 @@ export default function NewOrderForm({ onOrderCreatedAction, onCancelAction }: N
                         : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                     }`}>
                       {selectedCustomer.type === 'agency' 
-                        ? `Đại lý cấp ${selectedCustomer.agency_level}` 
+                        ? `Đại lý cấp 2` 
                         : 'Khách lẻ'
                       }
                     </span>
@@ -349,7 +348,7 @@ export default function NewOrderForm({ onOrderCreatedAction, onCancelAction }: N
                               : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                           }`}>
                             {customer.type === 'agency' 
-                              ? `Đại lý cấp ${customer.agency_level}` 
+                              ? `Đại lý cấp 2` 
                               : 'Khách lẻ'
                             }
                           </span>
