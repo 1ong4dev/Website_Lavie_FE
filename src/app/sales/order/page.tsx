@@ -67,6 +67,7 @@ export default function SalesOrderPage() {
     try {
       await orderService.createOrder({
         customerId: selectedCustomer._id,
+        customerName: selectedCustomer.name,
         orderItems: cart.map(item => ({
           productId: item.product._id,
           quantity: item.quantity,
@@ -75,7 +76,7 @@ export default function SalesOrderPage() {
         })),
         staffId: user?.id,
         staffName: user?.name
-      });
+      } as any);
       toast.success('Đặt hàng thành công!');
       setCart([]);
     } catch (error: any) {
@@ -162,7 +163,7 @@ export default function SalesOrderPage() {
                         <span>-</span>
                       )}
                     </td>
-                    <td className="px-4 py-2">{(item.product.price * item.quantity).toLocaleString('vi-VN')} đ</td>
+                    <td className="px-4 py-2">{((item.product.price * item.quantity) - ((item.returnable_quantity || 0) * 20000)).toLocaleString('vi-VN')} đ</td>
                     <td className="px-4 py-2">
                       <button className="text-red-600" onClick={() => setCart(prev => prev.filter(i => i.product._id !== item.product._id))}>Xóa</button>
                     </td>
