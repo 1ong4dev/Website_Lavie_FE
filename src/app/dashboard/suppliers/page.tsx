@@ -186,7 +186,6 @@ const [updatingPayment, setUpdatingPayment] = useState(false);
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tên</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Liên hệ</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Địa chỉ</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Công nợ</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Thao tác</th>
               </tr>
             </thead>
@@ -198,10 +197,9 @@ const [updatingPayment, setUpdatingPayment] = useState(false);
                     {s.contact_person} - {s.phone}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{s.address}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-red-500">{s.debt ? s.debt.toLocaleString("vi-VN") + " ₫" : "0 ₫"}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button className="btn btn-sm btn-outline mr-2" onClick={() => openDetail(s)}><FaEye /></button>
-                    <button className="btn btn-sm btn-outline mr-2" onClick={() => openImportModal(s)}><FaTruckLoading /></button>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-left">
+                    <button className="btn btn-sm btn-outline mr-2 " onClick={() => openDetail(s)}><FaEye /></button>
+                    <button className="btn btn-sm btn-outline mr-2 " onClick={() => openImportModal(s)}><FaTruckLoading /></button>
                     <button className="btn btn-sm btn-outline"><FaFileInvoice /></button>
                   </td>
                 </tr>
@@ -212,7 +210,10 @@ const [updatingPayment, setUpdatingPayment] = useState(false);
       </div>
       {/* Modal chi tiết nhà cung cấp */}
       {showModal && selectedSupplier && (
-        <Modal onClose={() => setShowModal(false)}>
+        <Modal onClose={() => {
+          setShowModal(false);
+          setShowPaymentForm(false);
+        }}>
           <div className="p-4">
             <h2 className="text-xl font-bold mb-2">Chi tiết nhà cung cấp</h2>
             <div className="mb-2">Tên: <b>{selectedSupplier.name}</b></div>
@@ -250,10 +251,10 @@ const [updatingPayment, setUpdatingPayment] = useState(false);
             )}
                  {/* Nút mở form cập nhật thanh toán */}
       <button
-        className="btn btn-primary mb-4"
-        onClick={() => setShowPaymentForm(!showPaymentForm)}
-      >
-        {showPaymentForm ? "Đóng cập nhật thanh toán" : "Cập nhật thanh toán"}
+          className="btn btn-primary mb-4"
+          onClick={() => setShowPaymentForm(true)}
+          disabled={selectedSupplier?.debt === 0}>
+          Cập nhật thanh toán
       </button>
 
       {/* Form cập nhật thanh toán */}
@@ -344,7 +345,10 @@ const [updatingPayment, setUpdatingPayment] = useState(false);
         </form>
       )}
             <div className="flex justify-end mt-4">
-              <button className="btn btn-outline" onClick={() => setShowModal(false)}>Đóng</button>
+              <button className="btn btn-outline" onClick={() => {
+                 setShowModal(false);
+                setShowPaymentForm(false);}}>Đóng
+              </button>
             </div>
           </div>
         </Modal>
