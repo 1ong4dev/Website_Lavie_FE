@@ -4,9 +4,12 @@ import { useState, useEffect } from 'react'
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaFilter } from 'react-icons/fa'
 import { toast } from 'react-toastify'
 import { deleteUser, updateUser, User } from '@/services/api/userService'
-import orderService, { Order } from '@/services/api/orderService'
+// import orderService, { Order } from '@/services/api/orderService'
+
+import Swal from 'sweetalert2';
 
 import {customerService, Customer} from '@/services/api/customerService';
+import { title } from 'process'
 
 // type Customer = {
 //   _id: string
@@ -138,7 +141,26 @@ export default function CustomerPage() {
     if(customer?.userId)
     {
       // Xóa tài khoản liên kết
-    if (!confirm('Khách hàng này có liên kết với một tài khoản, tài khoản đó cũng sẽ bị xóa, bạn có muốn tiếp tục không?')) return
+    // if (!confirm('Khách hàng này có liên kết với một tài khoản, tài khoản đó cũng sẽ bị xóa, bạn có muốn tiếp tục không?')) return
+      const result = await Swal.fire({
+      title: "<strong>Cảnh Báo</strong>",
+      icon: "warning",
+      html: `
+        Khách hàng này có liên kết với một tài khoản,
+        tài khoản đó cũng sẽ bị xóa.
+        Bạn có muốn tiếp tục không?
+      `,
+      showCloseButton: true,
+      showCancelButton: true,
+      focusConfirm: false,
+      confirmButtonText: `
+        Tôi hiểu và muốn tiếp tục!
+      `,
+      cancelButtonText: `
+        Hủy
+      `,
+      });
+      if (!result.isConfirmed) return
       try{
         await deleteUser(customer.userId);
       }
@@ -147,7 +169,27 @@ export default function CustomerPage() {
         return
       }
     }
-    else if (!confirm('Bạn có chắc chắn muốn xóa khách hàng này không?')) return
+    else 
+    {
+      // if (!confirm('Bạn có chắc chắn muốn xóa khách hàng này không?')) return
+      const result = await Swal.fire({
+      title: "<strong>Cảnh Báo</strong>",
+      icon: "warning",
+      html: `
+        Bạn có chắc chắn muốn xóa khách hàng này không?
+      `,
+      showCloseButton: true,
+      showCancelButton: true,
+      focusConfirm: false,
+      confirmButtonText: `
+        OK
+      `,
+      cancelButtonText: `
+        Hủy
+      `,
+      });
+      if (!result.isConfirmed) return
+    }
     try {
       await customerService.deleteCustomer(id);
     }
