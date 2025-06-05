@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { FaUser, FaLock, FaWater, FaUserTag } from 'react-icons/fa'
+import { FaUser, FaLock, FaWater, FaUserTag, FaPhone, FaAddressBook } from 'react-icons/fa'
 import { toast } from 'react-toastify'
 
 export default function RegisterPage() {
@@ -11,6 +11,8 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [name, setName] = useState('')
+  const [address, setAdress] = useState('')
+  const [phone, setPhone] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
@@ -58,6 +60,8 @@ export default function RegisterPage() {
           name: data.name,
           userId: data._id, // Lưu ID người dùng để liên kết
           type: 'retail', // Mặc định là khách lẻ
+          phone,
+          address
         }),
       })
       if (!response.ok && !response2.ok) {
@@ -87,7 +91,7 @@ export default function RegisterPage() {
         </div>
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                 Họ và tên
@@ -105,6 +109,48 @@ export default function RegisterPage() {
                   placeholder="Nhập họ và tên"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                Số Điện Thoại
+              </label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FaPhone className="text-gray-400" />
+                </div>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="number"
+                  required
+                  className="input pl-10"
+                  placeholder="Nhập số điện thoại"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+                Địa chỉ
+              </label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FaAddressBook className="text-gray-400" />
+                </div>
+                <input
+                  id="address"
+                  name="address"
+                  type="text"
+                  required
+                  className="input pl-10"
+                  placeholder="Nhập địa chỉ"
+                  value={address}
+                  onChange={(e) => setAdress(e.target.value)}
                 />
               </div>
             </div>
@@ -172,7 +218,6 @@ export default function RegisterPage() {
               </div>
             </div>
           </div>
-
           <div>
             <button
               type="submit"
