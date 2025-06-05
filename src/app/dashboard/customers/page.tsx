@@ -44,28 +44,28 @@ export default function CustomerPage() {
     setIsLoading(true)
     try {
       // const customers = users.filter(u => u.role === 'customer')
-      const customers: Customer[] = await customerService.getCustomers();
+      const customerList: Customer[] = await customerService.getCustomers();
       // Lấy tất cả orders
-      const orders: Order[] = await orderService.getOrders()
-      // Map user -> customer FE, tính debt và empty_debt
-      const customerList: Customer[] = customers.map(u => {
-        const userOrders = orders.filter((o: Order) => o.customerId === u._id || (typeof o.customerId === 'object' && (o.customerId as any)._id === u._id))
-        // Tổng công nợ = tổng debtRemaining các đơn chưa thanh toán
-        const debt = userOrders.reduce((sum: number, o: Order) => sum + (o.debtRemaining || 0), 0)
-        // Tổng vỏ nợ = tổng (returnableOut - returnableIn) các đơn chưa trả hết vỏ
-        const empty_debt = userOrders.reduce((sum: number, o: Order) => sum + ((o.returnableOut || 0) - (o.returnableIn || 0)), 0)
-        return {
-          _id: u._id,
-          name: u.name,
-          type: u.type,
-          phone: u.phone,
-          address: u.address,
-          debt,
-          empty_debt,
-          userId: u.userId,
-          createdAt: u.createdAt || '',
-        }
-      })
+      // const orders: Order[] = await orderService.getOrders()
+      // // Map user -> customer FE, tính debt và empty_debt
+      // const customerList: Customer[] = customers.map(u => {
+      //   const userOrders = orders.filter((o: Order) => o.customerId === u._id || (typeof o.customerId === 'object' && (o.customerId as any)._id === u._id))
+      //   // Tổng công nợ = tổng debtRemaining các đơn chưa thanh toán
+      //   const debt = userOrders.reduce((sum: number, o: Order) => sum + (o.debtRemaining || 0), 0)
+      //   // Tổng vỏ nợ = tổng (returnableOut - returnableIn) các đơn chưa trả hết vỏ
+      //   const empty_debt = userOrders.reduce((sum: number, o: Order) => sum + ((o.returnableOut || 0) - (o.returnableIn || 0)), 0)
+      //   return {
+      //     _id: u._id,
+      //     name: u.name,
+      //     type: u.type,
+      //     phone: u.phone,
+      //     address: u.address,
+      //     debt,
+      //     empty_debt,
+      //     userId: u.userId,
+      //     createdAt: u.createdAt || '',
+      //   }
+      // })
       setCustomers(customerList)
     } catch (err) {
       toast.error('Không thể tải danh sách khách hàng')
