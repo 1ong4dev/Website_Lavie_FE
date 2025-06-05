@@ -265,7 +265,7 @@ export default function UserForm({ user, onSave }: UserFormProps) {
           )}
         </div>
         {/* Thêm input chọn loại khách hàng */}
-        {selectedRole.id === 'customer' && (
+        {selectedRole.id === 'customer' && !isEditMode && (
         <div>               
           <label className="block text-sm font-medium text-gray-700">
             Loại Khách Hàng <span className="text-red-500">*</span>

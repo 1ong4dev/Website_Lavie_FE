@@ -6,6 +6,7 @@ import { productService, Product } from '@/services/api/productService';
 import { orderService } from '@/services/api/orderService';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
+import {customerService} from '@/services/api/customerService';
 
 export default function CustomerOrderPage() {
   const { user } = useAuth();
@@ -16,12 +17,19 @@ export default function CustomerOrderPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [returnableIn, setReturnableIn] = useState(0); //Long fix
 
+  const [isAgency, setIsAgency] = useState(false);
+
   
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const data = await productService.getProducts();
         setProducts(data);
+        // Kiểm tra xem người dùng có phải là đại lý hay không
+        const customer = (await customerService.getCustomers()).find(c => c.userId === user?.id);
+        if (customer && customer.type === 'agency') {
+          setIsAgency(true);
+        }
       } catch (error) {
         toast.error('Lỗi khi tải sản phẩm');
       } finally {
@@ -29,6 +37,7 @@ export default function CustomerOrderPage() {
       }
     };
     fetchProducts();
+    
   }, []);
 
   const addToCart = (product: Product) => {
@@ -144,7 +153,7 @@ export default function CustomerOrderPage() {
                   onError={(e) => { (e.target as HTMLImageElement).src = '/no-image.png'; }}
                 />
                 <div className="font-medium text-lg mb-2 text-gray-900 text-center">{product.name}</div>
-                <div className="mb-2 text-gray-700">Giá: {product.price?.toLocaleString('vi-VN')} đ</div>
+                <div className="mb-2 text-gray-700">Giá: {(product.price * (isAgency ? 0.9: 1))?.toLocaleString('vi-VN')} đ</div>
                 <button
                   className="btn btn-primary text-white font-semibold"
                   onClick={() => addToCart(product)}
@@ -182,7 +191,7 @@ export default function CustomerOrderPage() {
                           className="w-16 border rounded px-2 py-1 text-gray-900 text-center"
                         />
                       </td>
-                      <td className="px-4 py-2 text-gray-700 text-center">{((item.product.price * item.quantity) - ((item.returnable_quantity || 0) * 20000)).toLocaleString('vi-VN')} đ</td>
+                      <td className="px-4 py-2 text-gray-700 text-center">{(((item.product.price * item.quantity) - ((item.returnable_quantity || 0) * 20000)) * (isAgency ? 0.9: 1)).toLocaleString('vi-VN')} đ</td>
                       <td className="px-4 py-2 text-gray-700 text-center">
                         {item.product.is_returnable ? (
                           <input
