@@ -45,7 +45,7 @@ export default function AboutPage() {
                 <div className="lg:w-1/2 lg:pr-8">
                   <div className="relative h-64 w-full rounded-lg overflow-hidden shadow-lg">
                     <div className="absolute inset-0 bg-primary-100 flex items-center justify-center">
-                      <FaHistory className="h-24 w-24 text-primary-300" />
+                    <Image src="/uploads/lavie2.jpg" alt="Lavie Story" width={600} height={600}  className="mt-8 mx-auto rounded-lg shadow-lg transition-transform duration-300 hover:scale-105 hover:brightness-110" />
                     </div>
                   </div>
                 </div>
@@ -63,7 +63,7 @@ export default function AboutPage() {
                 <div className="lg:w-1/2 lg:pl-8">
                   <div className="relative h-64 w-full rounded-lg overflow-hidden shadow-lg">
                     <div className="absolute inset-0 bg-primary-100 flex items-center justify-center">
-                      <FaIndustry className="h-24 w-24 text-primary-300" />
+                    <Image src="/uploads/lavie1.jpg" alt="Lavie Story" width={600} height={600}  className="mt-8 mx-auto rounded-lg shadow-lg transition-transform duration-300 hover:scale-105 hover:brightness-110" />
                     </div>
                   </div>
                 </div>
