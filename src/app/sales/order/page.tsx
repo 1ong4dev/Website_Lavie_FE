@@ -7,8 +7,9 @@ import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContext';
 import { getUsers, User } from '@/services/api/userService';
 
+
 interface Product { _id: string; name: string; price: number; is_returnable: boolean; stock?: number; }
-interface Customer { _id: string; name: string; phone: string; address: string; }
+interface Customer { _id: string; name: string; phone: string; address: string; type: 'retail' | 'agency'; }
 interface CartItem { product: Product; quantity: number; returnable_quantity?: number; }
 
 export default function SalesOrderPage() {
@@ -24,14 +25,13 @@ export default function SalesOrderPage() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Lấy user role customer
-        const users: User[] = await getUsers();
-        const customers = users.filter(u => u.role === 'customer');
-        setCustomers(customers.map(u => ({
-          _id: u._id,
-          name: u.name,
-          phone: u.username,
-          address: '',
+       const customers = await customerService.getCustomers();
+        setCustomers(customers.map(c => ({
+          _id: c._id,
+          name: c.name,
+          phone: c.phone,
+          address: c.address,
+          type: c.type,
         })));
         const prods = await productService.getProducts();
         setProducts(prods);
@@ -42,16 +42,29 @@ export default function SalesOrderPage() {
     fetchData();
   }, []);
 
-  const addToCart = (product: Product, quantity: number) => {
+  const addToCart = async (product: Product, quantity: number) => {
     if (quantity <= 0) return;
+  
+    const isAgency = selectedCustomer?.type === 'agency';
+    const price = isAgency ? product.price * 0.9 : product.price;
+  
     setCart(prev => {
       const exist = prev.find(item => item.product._id === product._id);
       if (exist) {
-        return prev.map(item => item.product._id === product._id ? { ...item, quantity: item.quantity + quantity } : item);
+        return prev.map(item =>
+          item.product._id === product._id
+            ? {
+                ...item,
+                quantity: item.quantity + quantity,
+                product: { ...item.product, price }, // cập nhật giá nếu là đại lý
+              }
+            : item
+        );
       }
-      return [...prev, { product, quantity }];
+      return [...prev, { product: { ...product, price }, quantity }];
     });
-    toast.success(`Đã thêm ${product.name} x${quantity} vào giỏ hàng`);
+  
+    toast.success(`Đã thêm ${product.name} x${quantity} vào giỏ hàng${isAgency ? ' (đã giảm 10%)' : ''}`);
   };
 
   const handleOrder = async () => {
@@ -79,6 +92,9 @@ export default function SalesOrderPage() {
       } as any);
       toast.success('Đặt hàng thành công!');
       setCart([]);
+      // Load tồn kho
+      const updatedProducts = await productService.getProducts();
+      setProducts(updatedProducts);
     } catch (error: any) {
       if (error?.response?.data?.message) {
         toast.error('Lỗi: ' + error.response.data.message);
@@ -136,7 +152,7 @@ export default function SalesOrderPage() {
                 <tr>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Sản phẩm</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Số lượng</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Bình rỗng đổi trả</th>
+                  {/* <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Bình rỗng đổi trả</th> */}
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Thành tiền</th>
                   <th></th>
                 </tr>
@@ -146,7 +162,7 @@ export default function SalesOrderPage() {
                   <tr key={item.product._id}>
                     <td className="px-4 py-2">{item.product.name}</td>
                     <td className="px-4 py-2">{item.quantity}</td>
-                    <td className="px-4 py-2">
+                    {/* <td className="px-4 py-2">
                       {item.product.is_returnable ? (
                         <input
                           type="number"
@@ -162,7 +178,7 @@ export default function SalesOrderPage() {
                       ) : (
                         <span>-</span>
                       )}
-                    </td>
+                    </td> */}
                     <td className="px-4 py-2">{((item.product.price * item.quantity) - ((item.returnable_quantity || 0) * 20000)).toLocaleString('vi-VN')} đ</td>
                     <td className="px-4 py-2">
                       <button className="text-red-600" onClick={() => setCart(prev => prev.filter(i => i.product._id !== item.product._id))}>Xóa</button>
