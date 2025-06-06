@@ -164,6 +164,7 @@ export default function CustomerOrderPage() {
                 />
                 <div className="font-medium text-lg mb-2 text-gray-900 text-center">{product.name}</div>
                 <div className="mb-2 text-gray-700">Giá: {(product.price * (isAgency ? 0.9: 1))?.toLocaleString('vi-VN')} đ</div>
+                <div className="mb-2 text-gray-700">Số hàng còn: {product.stock}</div>
                 <button
                   className="btn btn-primary text-white font-semibold"
                   onClick={() => addToCart(product)}

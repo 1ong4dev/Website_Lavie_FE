@@ -1,12 +1,15 @@
 'use client'
 import { useAuth } from '@/contexts/AuthContext';
 import {useState, useEffect} from 'react';
-import {customerService, Customer} from '@/services/api/customerService';
+import {customerService, Customer, CustomerCreate} from '@/services/api/customerService';
 
 export default function CustomerProfilePage() {
   const { user } = useAuth();
   const [customers, setCustomers] = useState<Customer | null>(null);
 
+  const [showModal, setShowModal] = useState(false);
+  const [editData, setEditData] = useState<{name?: string, phone?: string; address?: string }>({});
+  const [formError, setFormError] = useState<string | null>(null);
   useEffect( () => {
     fetchCustomer(user?.id || '');
   },[]);
@@ -21,6 +24,24 @@ export default function CustomerProfilePage() {
       console.error('Lỗi khi lấy thông tin khách hàng:', error);
     }
   }
+  // hàm sửa profile khách hàng
+  const handleUpdateProfile = async (updatedData: Partial<CustomerCreate>) => {
+    await customerService.updateCustomer(customers?._id || '', {...updatedData, type: customers?.type || 'retail'});
+    fetchCustomer(user?.id || '');
+  }
+
+  const validateEditData = () => {
+  if (!editData.name || editData.name.trim() === '') {
+    return 'Tên người dùng không được để trống';
+  }
+  if (!editData.phone || editData.phone.trim() === '') {
+    return 'Số điện thoại không được để trống';
+  }
+  if (!editData.address || editData.address.trim() === '') {
+    return 'Địa chỉ không được để trống';
+  }
+  return null;
+};
 
 
   return (
@@ -54,12 +75,76 @@ export default function CustomerProfilePage() {
       </div>
       <div className="flex items-center justify-end">
         <button
-                  onClick={() => {}}
+                  onClick={() => {
+                    setEditData({ name: customers?.name || '', phone: customers?.phone || '', address: customers?.address || '' });
+                    setShowModal(true);
+                  }}
                   className="btn btn-primary flex items-center"
                 >
                   Sửa thông tin
                 </button>
       </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-bold mb-4">Cập nhật thông tin</h2>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">Tên người dùng</label>
+              <input
+                type="text"
+                className="mt-1 block w-full border rounded px-3 py-2"
+                value={editData.name}
+                onChange={e => setEditData({ ...editData, name: e.target.value })}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">Số điện thoại</label>
+              <input
+                type="text"
+                className="mt-1 block w-full border rounded px-3 py-2"
+                value={editData.phone}
+                onChange={e => setEditData({ ...editData, phone: e.target.value })}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">Địa chỉ</label>
+              <input
+                type="text"
+                className="mt-1 block w-full border rounded px-3 py-2"
+                value={editData.address}
+                onChange={e => setEditData({ ...editData, address: e.target.value })}
+              />
+            </div>
+            {formError && (
+            <div className="mb-2 text-red-600 text-sm">{formError}</div>)}
+            <div className="flex justify-end space-x-2">
+              <button
+                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
+                onClick={() => setShowModal(false)}
+              >
+                Hủy
+              </button>
+              <button
+                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+                onClick={async () => {
+                  const error = validateEditData();
+                  if (error) {
+                    setFormError(error);
+                    return;
+                  }
+                  setFormError(null);
+                  await handleUpdateProfile(editData);
+                  setShowModal(false);
+                }}
+              >
+                Lưu
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Nếu muốn thêm chức năng đổi mật khẩu, có thể bổ sung form ở đây */}
     </div>
   );
