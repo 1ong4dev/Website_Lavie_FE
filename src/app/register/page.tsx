@@ -19,7 +19,7 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!username || !password || !name) {
+    if (!username || !password || !name || !address || !phone) {
       toast.error('Vui lòng nhập đầy đủ thông tin')
       return
     }
