@@ -28,6 +28,11 @@ export default function RegisterPage() {
       toast.error('Mật khẩu xác nhận không khớp')
       return
     }
+
+    if (!phone.startsWith('0') || phone.length < 10) {
+      toast.error('Số điện thoại không hợp lệ')
+      return
+    }
     
     setIsLoading(true)
     
@@ -108,7 +113,9 @@ export default function RegisterPage() {
                   className="input pl-10"
                   placeholder="Nhập họ và tên"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[*|\":<>[\]{}`\\()';@&$]/g, '')
+                    setName(value)}}
                 />
               </div>
             </div>
@@ -129,7 +136,9 @@ export default function RegisterPage() {
                   className="input pl-10"
                   placeholder="Nhập số điện thoại"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[\De-]/g, '').slice(0,10); // Chỉ cho phép số, max 10 ký tự
+                    setPhone(value)}}
                 />
               </div>
             </div>
@@ -150,7 +159,9 @@ export default function RegisterPage() {
                   className="input pl-10"
                   placeholder="Nhập địa chỉ"
                   value={address}
-                  onChange={(e) => setAdress(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[*|\":<>[\]{}`\\()';@&$]/g, '')
+                    setAdress(value)}}
                 />
               </div>
             </div>
@@ -171,7 +182,9 @@ export default function RegisterPage() {
                   className="input pl-10"
                   placeholder="Nhập tên đăng nhập"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^a-zA-Z0-9_.-]/g, '')
+                    setUsername(value)}}
                 />
               </div>
             </div>
@@ -192,7 +205,7 @@ export default function RegisterPage() {
                   className="input pl-10"
                   placeholder="Nhập mật khẩu"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)} // mật khẩu không cần lọc ký tự đặc biệt
                 />
               </div>
             </div>

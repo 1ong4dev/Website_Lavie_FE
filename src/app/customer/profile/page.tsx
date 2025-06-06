@@ -2,9 +2,10 @@
 import { useAuth } from '@/contexts/AuthContext';
 import {useState, useEffect} from 'react';
 import {customerService, Customer, CustomerCreate} from '@/services/api/customerService';
+import {updateUser, UpdateUserRequest} from '@/services/api/userService';
 
 export default function CustomerProfilePage() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const [customers, setCustomers] = useState<Customer | null>(null);
 
   const [showModal, setShowModal] = useState(false);
@@ -26,7 +27,18 @@ export default function CustomerProfilePage() {
   }
   // hàm sửa profile khách hàng
   const handleUpdateProfile = async (updatedData: Partial<CustomerCreate>) => {
+    console.log({...updatedData, type: customers?.type || 'retail'})
     await customerService.updateCustomer(customers?._id || '', {...updatedData, type: customers?.type || 'retail'});
+    if(updatedData.name)
+    {
+      if(user)
+      setUser({
+        id: user.id,
+        name: updatedData.name,
+        username: user.username,
+        role: user.role
+      })
+    }
     fetchCustomer(user?.id || '');
   }
 
@@ -40,6 +52,9 @@ export default function CustomerProfilePage() {
   if (!editData.address || editData.address.trim() === '') {
     return 'Địa chỉ không được để trống';
   }
+  if (editData.phone.length < 10 || !editData.phone.startsWith('0')) {
+    return 'Số điện thoại không hợp lệ';
+  }
   return null;
 };
 
@@ -50,7 +65,7 @@ export default function CustomerProfilePage() {
       <div className="space-y-4">
         <div>
           <span className="font-medium text-gray-700">Tên khách hàng:</span>
-          <span className="ml-2 text-gray-900">{user?.name}</span>
+          <span className="ml-2 text-gray-900">{customers?.name}</span>
         </div>
         <div>
           <span className="font-medium text-gray-700">Tên đăng nhập:</span>
@@ -96,16 +111,22 @@ export default function CustomerProfilePage() {
                 type="text"
                 className="mt-1 block w-full border rounded px-3 py-2"
                 value={editData.name}
-                onChange={e => setEditData({ ...editData, name: e.target.value })}
+                onChange={e => {
+                  const value = e.target.value.replace(/[*|\":<>[\]{}`\\()';@&$]/g, '')
+                  setEditData({ ...editData, name: value })
+                }}
               />
             </div>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700">Số điện thoại</label>
               <input
-                type="text"
+                type="text" maxLength={10} 
                 className="mt-1 block w-full border rounded px-3 py-2"
                 value={editData.phone}
-                onChange={e => setEditData({ ...editData, phone: e.target.value })}
+                onChange={e => {
+                  const value = e.target.value.replace(/[\De-]/g, '').slice(0,10); // Chỉ cho phép số, max 10 ký tự
+                  setEditData({ ...editData, phone: value })
+                }}
               />
             </div>
             <div className="mb-4">
@@ -114,7 +135,10 @@ export default function CustomerProfilePage() {
                 type="text"
                 className="mt-1 block w-full border rounded px-3 py-2"
                 value={editData.address}
-                onChange={e => setEditData({ ...editData, address: e.target.value })}
+                onChange={e => {
+                  const value = e.target.value.replace(/[*|\":<>[\]{}`\\()';@&$]/g, '')
+                  setEditData({ ...editData, address: value })
+                }}
               />
             </div>
             {formError && (

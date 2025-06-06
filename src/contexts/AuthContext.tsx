@@ -17,6 +17,7 @@ type AuthContextType = {
   login: (username: string, password: string) => Promise<void>
   logout: () => void
   checkUserRole: (allowedRoles: string[]) => boolean
+  setUser: React.Dispatch<React.SetStateAction<User | null>>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -120,7 +121,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isLoading,
         login,
         logout,
-        checkUserRole
+        checkUserRole,
+        setUser
       }}
     >
       {children}
