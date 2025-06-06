@@ -216,6 +216,7 @@ export default function OrdersPage() {
                   <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[10%]">Trạng thái</th>
                   <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[12%]">Tổng tiền</th>
                   <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[12%]">Đã thanh toán</th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[12%]">Tiền cọc vỏ</th>
                   <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[12%]">Công nợ</th>
                   <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[7%]">Vỏ xuất/trả</th>
                   <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[10%]">Thao tác</th>
@@ -260,6 +261,13 @@ export default function OrdersPage() {
                       <td className="px-3 py-3 whitespace-nowrap">
                         <div className="text-sm text-gray-900 dark:text-white">
                           {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.paidAmount)}
+                        </div>
+                      </td>
+                      <td className="px-3 py-3 whitespace-nowrap">
+                        <div className={`text-sm ${
+                          order.debtRemainingReturnable > 0 ? 'text-red-500' : 'text-gray-900 dark:text-white'
+                        }`}>
+                          {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.returnableAmount - order.debtRemainingReturnable)}/{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.returnableAmount)}
                         </div>
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap">

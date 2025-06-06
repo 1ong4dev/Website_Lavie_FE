@@ -45,6 +45,9 @@ export default function CustomerOrderHistoryPage() {
             <tr>
               <th className="px-4 py-2">Mã đơn</th>
               <th className="px-4 py-2">Ngày đặt</th>
+              <th className="px-4 py-2">Vỏ đã trả/Tổng số vỏ</th>
+              <th className="px-4 py-2">Tiền cọc vỏ</th>
+              <th className="px-4 py-2">Tiền hàng</th>
               <th className="px-4 py-2">Tổng tiền</th>
               <th className="px-4 py-2">Trạng thái</th>
             </tr>
@@ -59,7 +62,10 @@ export default function CustomerOrderHistoryPage() {
                 <tr key={order._id} className="hover:bg-gray-50">
                   <td className="px-4 py-2 font-medium text-primary-600">{order._id}</td>
                   <td className="px-4 py-2">{new Date(order.orderDate).toLocaleDateString('vi-VN')}</td>
-                  <td className="px-4 py-2">{formatCurrency(order.totalAmount + ((order.returnableIn < order.returnableOut) ? (order.returnableOut - order.returnableIn) * 20000 : 0))}</td>
+                  <td className="px-4 py-2">{order.returnableIn}/{order.returnableOut}</td>
+                  <td className="px-4 py-2">{formatCurrency(order.returnableAmount)}</td>
+                  <td className="px-4 py-2">{formatCurrency((order.totalAmount))}</td>
+                  <td className="px-4 py-2">{formatCurrency(order.totalAmount + order.returnableAmount)}</td>
                   <td className="px-4 py-2">
                     <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                       order.status === 'completed'

@@ -9,6 +9,8 @@ export interface Order {
   totalAmount: number;
   paidAmount: number;
   debtRemaining: number;
+  returnableAmount: number;
+  debtRemainingReturnable: number;
   returnableOut: number;
   returnableIn: number;
   createdBy: string;
