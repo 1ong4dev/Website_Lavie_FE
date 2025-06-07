@@ -22,6 +22,7 @@ export default function OrderDetailModal({ orderId, isOpen, onCloseAction, onOrd
   const [modalType, setModalType] = useState<null | 'payment' | 'returnable'>(null)
   const [paymentAmount, setPaymentAmount] = useState(0)
   const [returnableAmount, setReturnableAmount] = useState(0)
+  const [paymentReturnableAmount, setpaymentReturnableAmount] = useState(0) // tạo thêm
 
   useEffect(() => {
     if (isOpen && orderId) {
@@ -34,7 +35,7 @@ export default function OrderDetailModal({ orderId, isOpen, onCloseAction, onOrd
     try {
       const orderData = await orderService.getOrderById(orderId)
       setOrder(orderData)
-      
+  
       const items = await orderService.getOrderItems(orderId)
       setOrderItems(items)
     } catch (error: any) {
@@ -64,7 +65,7 @@ export default function OrderDetailModal({ orderId, isOpen, onCloseAction, onOrd
     if (!order) return
     
     try {
-      await orderService.updatePayment(order._id, paymentAmount)
+      await orderService.updatePayment(order._id, paymentAmount, paymentReturnableAmount)
       toast.success('Cập nhật thanh toán thành công')
       setModalType(null)
       fetchOrderDetails()
@@ -341,7 +342,7 @@ export default function OrderDetailModal({ orderId, isOpen, onCloseAction, onOrd
                           setPaymentAmount(0)
                           setModalType('payment')
                         }}
-                        disabled={order.debtRemaining <= 0}
+                        disabled={order.debtRemaining <= 0 && order.returnableOut <= order.returnableIn}
                         className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Cập nhật thanh toán
@@ -405,6 +406,22 @@ export default function OrderDetailModal({ orderId, isOpen, onCloseAction, onOrd
                             onChange={(e) => setPaymentAmount(Number(e.target.value))}
                             min="0"
                             max={(order?.totalAmount || 0) - (order?.paidAmount || 0)}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="paymentReturnable" className="block text-sm font-medium text-gray-900">
+                            Số tiền cọc trả vỏ thanh toán thêm
+                          </label>
+                          <input
+                            type="number"
+                            id="paymentReturnable"
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-gray-900"
+                            placeholder="Nhập số tiền"
+                            value={paymentReturnableAmount}
+                            onChange={(e) => setpaymentReturnableAmount(Number(e.target.value))}
+                            min="0"
+                            max={(order?.returnableAmount || 0) - (order?.paidReturnableAmount || 0)}
                             required
                           />
                         </div>

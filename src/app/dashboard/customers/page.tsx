@@ -324,11 +324,11 @@ export default function CustomerPage() {
                           <div className="text-sm text-gray-500 dark:text-gray-400">{customer.address}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className={`text-sm ${customer.debt > 0 ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'
+                          <div className={`text-sm ${customer.debt > 0 ? 'text-red-500' : 'text-green-500 dark:text-gray-400'
                             }`}>
                             {customer.debt > 0
                               ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(customer.debt)
-                              : '0 ₫'
+                              : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Math.abs(customer.debt))
                             }
                           </div>
                         </td>

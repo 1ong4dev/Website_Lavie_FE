@@ -11,6 +11,7 @@ export interface Order {
   debtRemaining: number;
   returnableAmount: number;
   debtRemainingReturnable: number;
+  paidReturnableAmount: number;
   returnableOut: number;
   returnableIn: number;
   createdBy: string;
@@ -84,8 +85,8 @@ export const orderService = {
     return response.data;
   },
 
-  async updatePayment(id: string, paidAmount: number): Promise<Order> {
-    const response = await apiClient.put(`/orders/${id}/payment`, { amount: paidAmount });
+  async updatePayment(id: string, paidAmount: number, paidReturnableAmount?: number): Promise<Order> {
+    const response = await apiClient.put(`/orders/${id}/payment`, { amount: paidAmount, amountReturnable: paidReturnableAmount });
     return response.data;
   },
 

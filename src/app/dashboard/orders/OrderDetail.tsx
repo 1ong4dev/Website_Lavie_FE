@@ -232,7 +232,7 @@ export default function OrderDetail({ order, onUpdateStatusAction, onUpdatePayme
           </button>
         )}
         
-        {order.debtRemaining > 0 && (
+        {(order.debtRemaining > 0) && (
           <button
             onClick={() => setShowPaymentModal(true)}
             className="btn btn-secondary flex items-center justify-center"

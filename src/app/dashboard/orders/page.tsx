@@ -265,9 +265,9 @@ export default function OrdersPage() {
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap">
                         <div className={`text-sm ${
-                          order.debtRemainingReturnable > 0 ? 'text-red-500' : 'text-gray-900 dark:text-white'
+                          order.paidReturnableAmount > 0 ? 'text-red-500' : 'text-gray-900 dark:text-white'
                         }`}>
-                          {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.returnableAmount - order.debtRemainingReturnable)}/{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.returnableAmount)}
+                          {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.paidReturnableAmount || 0)}/{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.returnableAmount)}
                         </div>
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap">
