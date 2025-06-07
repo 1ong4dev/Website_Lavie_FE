@@ -204,28 +204,28 @@ export default function ContactPage() {
                 <dt><span className="sr-only">Địa chỉ</span></dt>
                 <dd className="flex text-base text-primary-50">
                   <FaMapMarkerAlt className="flex-shrink-0 w-6 h-6 text-primary-200" aria-hidden="true" />
-                  <span className="ml-3">123 Đường Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh</span>
+                  <span className="ml-3">Số 1 Lê Thánh Tông - Phường Máy Chai - Q.Ngô Quyền - TP.Hải Phòng</span>
                 </dd>
                 <dt><span className="sr-only">Số điện thoại</span></dt>
                 <dd className="flex text-base text-primary-50">
                   <FaPhone className="flex-shrink-0 w-6 h-6 text-primary-200" aria-hidden="true" />
-                  <span className="ml-3">+84 28 1234 5678</span>
+                  <span className="ml-3">0384046777</span>
                 </dd>
                 <dt><span className="sr-only">Email</span></dt>
                 <dd className="flex text-base text-primary-50">
                   <FaEnvelope className="flex-shrink-0 w-6 h-6 text-primary-200" aria-hidden="true" />
-                  <span className="ml-3">contact@lavie-water.com</span>
+                  <span className="ml-3">npptramanhhp@gmail.com</span>
                 </dd>
               </dl>
               <ul role="list" className="mt-8 flex space-x-6">
                 <li>
-                  <a className="text-primary-200 hover:text-primary-100" href="#">
+                  <a className="text-primary-200 hover:text-primary-100" href="https://www.facebook.com/bao.long.530656">
                     <span className="sr-only">Facebook</span>
                     <FaFacebook className="h-6 w-6" />
                   </a>
                 </li>
                 <li>
-                  <a className="text-primary-200 hover:text-primary-100" href="#">
+                  <a className="text-primary-200 hover:text-primary-100" href="https://www.instagram.com/deptraisadgai/">
                     <span className="sr-only">Instagram</span>
                     <FaInstagram className="h-6 w-6" />
                   </a>
@@ -376,12 +376,20 @@ export default function ContactPage() {
               Vị trí cửa hàng
             </h2>
             <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
-              Ghé thăm cửa hàng chính của chúng tôi tại TP. Hồ Chí Minh
+              Ghé thăm cửa hàng chính của chúng tôi tại TP. Hải Phòng để trải nghiệm sản phẩm và dịch vụ tốt nhất.
             </p>
           </div>
           <div className="mt-10 aspect-w-16 aspect-h-9 overflow-hidden rounded-lg shadow-lg">
             <div className="w-full h-96 bg-gray-300">
-              {/* In a real application, you would integrate with Google Maps or similar */}
+            <iframe
+                  title="Vị trí cửa hàng"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1318.0933040912985!2d106.69190267009556!3d20.866775336412584!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x314a7b1add7afe41%3A0x6c94fd4b563db71!2zMSBQIEzDqiBUaMOhbmggVMO0bmc!5e0!3m2!1svi!2s!4v1749274887659!5m2!1svi!2s"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+              ></iframe>
               <div className="w-full h-full flex items-center justify-center">
                 <span className="text-gray-600">Google Maps sẽ được tích hợp tại đây</span>
               </div>
