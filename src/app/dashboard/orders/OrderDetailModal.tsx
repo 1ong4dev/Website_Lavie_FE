@@ -340,6 +340,7 @@ export default function OrderDetailModal({ orderId, isOpen, onCloseAction, onOrd
                         type="button"
                         onClick={() => {
                           setPaymentAmount(0)
+                          setpaymentReturnableAmount(0)
                           setModalType('payment')
                         }}
                         disabled={order.debtRemaining <= 0 && order.returnableOut <= order.returnableIn}
