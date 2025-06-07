@@ -31,11 +31,11 @@ export default function CustomerDashboard() {
         if (!user) return;
         // Lấy tất cả đơn hàng của user hiện tại
         const allOrders = await orderService.getOrders();
+        console.log(user);
         // Lọc đơn hàng của customer hiện tại
         const customers = await customerService.getCustomers();
-        const customer = customers.find(c => c.userId = user.id);
-        const customerOrders = allOrders.filter((order) => {
-        return order.customerId === customer?._id});
+        const customer = customers.find(c => c.userId === user.id);
+        const customerOrders = allOrders.filter((order) => order.customerId === customer?._id);
         
         // Tính toán thống kê
         const totalOrders = customerOrders.length;
