@@ -88,7 +88,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (data.role === 'admin') {
         router.push('/dashboard')
       } else if (data.role === 'sales') {
-        router.push('/order')
+        router.push('/sales/order')
       } else if (data.role === 'customer') {
         router.push('/customer/dashboard') // Điều hướng khách hàng vào màn hình riêng
       } else {
