@@ -53,7 +53,7 @@ export default function RegisterPage() {
       
       const data = await response.json()
       
-      toast.success('Đăng ký thành công')
+    
       // Tạo Customer tương ứng với user role customer
       const response2 = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/customers`, {
         method: 'POST',
@@ -71,7 +71,10 @@ export default function RegisterPage() {
       })
       if (!response.ok && !response2.ok) {
         throw new Error(data.message || 'Đăng ký thất bại')
+      } else{
+        toast.success('Đăng ký thành công')
       }
+      
 
       router.push('/login')
     } catch (error: any) {
