@@ -12,6 +12,7 @@ type Product = {
   price: number
   is_returnable: boolean
   stock: number
+  image: string
   createdAt: string
 }
 
@@ -30,6 +31,7 @@ export default function ProductsPage() {
     price: 0,
     is_returnable: false,
     stock: 0,
+    image:'' ,
   })
 
   useEffect(() => {
@@ -116,6 +118,7 @@ export default function ProductsPage() {
       price: product.price,
       is_returnable: product.is_returnable,
       stock: product.stock,
+      image: product.image,
     })
     setShowEditModal(true)
   }
@@ -127,6 +130,7 @@ export default function ProductsPage() {
       price: 0,
       is_returnable: false,
       stock: 0,
+      image: '',
     })
     setSelectedProduct(null)
   }
@@ -350,6 +354,18 @@ export default function ProductsPage() {
                     onChange={handleInputChange}
                     min="0"
                     required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="image" className="label">Hình ảnh sản phẩm</label>
+                  <input
+                    type="text"
+                    id="image"
+                    name="image"
+                    className="input"
+                    placeholder="Nhập URL hình ảnh sản phẩm (tùy chọn)"
+                    value={formData.image}
+                    onChange={handleInputChange}
                   />
                 </div>
 
