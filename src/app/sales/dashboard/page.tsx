@@ -76,11 +76,11 @@ export default function SalesDashboardPage() {
   if (stats.isLoading) return <div className="flex justify-center items-center h-64"><div className="w-12 h-12 border-4 border-primary-400 border-t-transparent rounded-full animate-spin"></div></div>;
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900 mb-4">Dashboard Sales</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="space-y-6  justify-center">
+      <h1 className="text-2xl font-bold text-gray-900 mb-4 text-center">Dashboard Sales</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ">
         <div className="bg-white rounded-lg shadow p-5">
-          <div className="text-sm text-gray-500">Đơn trong ngày</div>
+          <div className="text-sm text-gray-500 te">Đơn trong ngày</div>
           <div className="text-2xl font-bold text-primary-600">{stats.ordersToday}</div>
         </div>
         <div className="bg-white rounded-lg shadow p-5">

@@ -48,7 +48,7 @@ export default function SalesOrdersPage() {
               <td className="px-6 py-4 whitespace-nowrap text-gray-900">{order._id}</td>
               <td className="px-6 py-4 whitespace-nowrap text-gray-900">{order.customerName}</td>
               <td className="px-6 py-4 whitespace-nowrap text-gray-900">{order.totalAmount.toLocaleString('vi-VN')} đ</td>
-              <td className="px-6 py-4 whitespace-nowrap text-gray-900">{order.status}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-gray-900">{order.status === 'pending' ? 'Đang xử lý': 'Đã hoàn thành'}</td>
             </tr>
           ))}
         </tbody>
