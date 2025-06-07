@@ -60,19 +60,19 @@ export default function CustomerOrderHistoryPage() {
             ) : (
               orders.map((order) => (
                 <tr key={order._id} className="hover:bg-gray-50">
-                  <td className="px-4 py-2 font-medium text-primary-600">{order._id}</td>
-                  <td className="px-4 py-2">{new Date(order.orderDate).toLocaleDateString('vi-VN')}</td>
-                  <td className="px-4 py-2">{order.returnableIn}/{order.returnableOut}</td>
-                  <td className="px-4 py-2">{formatCurrency(order.returnableAmount)}</td>
-                  <td className="px-4 py-2">{formatCurrency((order.totalAmount))}</td>
-                  <td className="px-4 py-2">{formatCurrency(order.totalAmount + order.returnableAmount)}</td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-2 font-medium text-primary-600 text-center">{order._id}</td>
+                  <td className="px-4 py-2 text-center ">{new Date(order.orderDate).toLocaleDateString('vi-VN')}</td>
+                  <td className="px-4 py-2 text-center">{order.returnableIn}/{order.returnableOut}</td>
+                  <td className="px-4 py-2 text-center">{formatCurrency(order.returnableAmount)}</td>
+                  <td className="px-4 py-2 text-center">{formatCurrency((order.totalAmount))}</td>
+                  <td className="px-4 py-2 text-center">{formatCurrency(order.totalAmount + order.returnableAmount)}</td>
+                  <td className="px-4 py-2 text-center">
                     <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                       order.status === 'completed'
-                        ? 'bg-green-100 text-green-800'
+                        ? 'Đã Hoàn Thành bg-green-100 text-green-800'
                         : 'bg-yellow-100 text-yellow-800'
                     }`}>
-                      {order.status}
+                      {order.status === 'completed' ? 'Đã Hoàn Thành' : 'Đang Xử Lý'}
                     </span>
                   </td>
                 </tr>
