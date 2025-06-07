@@ -65,13 +65,16 @@ export default function OrderDetailModal({ orderId, isOpen, onCloseAction, onOrd
     if (!order) return
     
     try {
+      if(paymentReturnableAmount % 20000 != 0)
+      {
+        throw new Error('Tiền cọc phải là bội số của 20000');
+      }
       await orderService.updatePayment(order._id, paymentAmount, paymentReturnableAmount)
       toast.success('Cập nhật thanh toán thành công')
       setModalType(null)
       fetchOrderDetails()
       onOrderUpdatedAction()
     } catch (error: any) {
-      console.error('Error updating payment:', error)
       toast.error(`Lỗi khi cập nhật thanh toán: ${error.message || 'Unknown error'}`)
     }
   }
