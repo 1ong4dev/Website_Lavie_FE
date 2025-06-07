@@ -1,5 +1,6 @@
 'use client'
 
+import {customerService, Customer} from '@/services/api/customerService'
 import { useState, useEffect } from 'react'
 import { FaShoppingCart, FaHistory, FaWater, FaMoneyBillWave, FaUser } from 'react-icons/fa'
 import { useAuth } from '@/contexts/AuthContext'
@@ -30,8 +31,12 @@ export default function CustomerDashboard() {
         if (!user) return;
         // Lấy tất cả đơn hàng của user hiện tại
         const allOrders = await orderService.getOrders();
-        // Lọc đơn hàng của user hiện tại
-        const customerOrders = allOrders.filter((order) => order.customerId === user.id);
+        // Lọc đơn hàng của customer hiện tại
+        const customers = await customerService.getCustomers();
+        const customer = customers.find(c => c.userId = user.id);
+        const customerOrders = allOrders.filter((order) => {
+        return order.customerId === customer?._id});
+        
         // Tính toán thống kê
         const totalOrders = customerOrders.length;
         const pendingOrders = customerOrders.filter((o) => o.status === 'pending').length;
