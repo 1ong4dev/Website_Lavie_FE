@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { customerService } from '@/services/api/customerService';
 import { getUsers, User } from '@/services/api/userService';
 
-interface Customer { _id: string; name: string; phone: string; address: string; }
+interface Customer { _id: string; name: string; phone: string; address: string; type: 'retail' | 'agency'; debt: number; empty_debt: number; }
 
 export default function SalesCustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -13,13 +13,15 @@ export default function SalesCustomersPage() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const users: User[] = await getUsers();
-        const customers = users.filter(u => u.role === 'customer');
-        setCustomers(customers.map(u => ({
-          _id: u._id,
-          name: u.name,
-          phone: u.username,
-          address: '',
+      const customer = await customerService.getCustomers();
+        setCustomers(customer.map(c => ({
+          _id: c._id,
+          name: c.name,
+          phone: c.phone,
+          address: c.address,
+          type: c.type,
+          debt: c.debt || 0,
+          empty_debt: c.empty_debt || 0
         })));
       } finally {
         setIsLoading(false);
@@ -37,8 +39,11 @@ export default function SalesCustomersPage() {
         <thead className="bg-gray-50">
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên khách hàng</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên đăng nhập</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số điện thoại</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Địa chỉ</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loại khách hàng</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Công nợ</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vỏ nợ</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
@@ -47,6 +52,10 @@ export default function SalesCustomersPage() {
               <td className="px-6 py-4 whitespace-nowrap text-gray-900">{c.name}</td>
               <td className="px-6 py-4 whitespace-nowrap text-gray-900">{c.phone}</td>
               <td className="px-6 py-4 whitespace-nowrap text-gray-900">{c.address}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-gray-900">{c.type ==='retail' ? 'Khách hàng lẻ' : 'Đại lý cấp 2'}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-gray-900">{c.debt.toLocaleString('vi-VN')} đ
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-gray-900">{c.empty_debt.toLocaleString('vi-VN')} vỏ</td>
             </tr>
           ))}
         </tbody>
