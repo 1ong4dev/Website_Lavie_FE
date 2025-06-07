@@ -6,11 +6,17 @@ import Link from 'next/link'
 import { FaWater, FaArrowRight, FaPhone, FaShoppingCart } from 'react-icons/fa'
 import { productService, Product } from '@/services/api/productService'
 import { toast } from 'react-toastify'
+import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
+
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  
+  const { user } = useAuth(); // Lấy thông tin người dùng
+  const router = useRouter(); // Sử dụng router để chuyển hướng
+
+
   useEffect(() => {
     fetchProducts()
   }, [])
@@ -28,6 +34,13 @@ export default function ProductsPage() {
       setIsLoading(false)
     }
   }
+  const handleOrderClick = () => {
+    if (user?.role === 'customer') {
+      router.push('/customer/order'); // Chuyển hướng đến trang đặt hàng của khách hàng
+    } else {
+      router.push('/contact'); // Chuyển hướng đến trang liên hệ
+    }
+  };
   
   // Function to handle image errors
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
@@ -192,12 +205,15 @@ export default function ProductsPage() {
                       {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}
                     </p>
                   </div>
-                  <div className="mt-4">
-                    <Link href="/order" className="flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700">
-                      <FaShoppingCart className="mr-2" />
-                      Đặt hàng
-                    </Link>
-                  </div>
+                  <div className="mt-4 flex justify-center">
+                      <button
+                        onClick={handleOrderClick}
+                        className="flex items-center text-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
+                      >
+                        <FaShoppingCart className="mr-2" />
+                        Đặt hàng
+                      </button>
+                   </div>
                 </div>
               ))}
             </div>
