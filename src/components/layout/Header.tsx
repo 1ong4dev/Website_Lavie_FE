@@ -59,7 +59,7 @@ export default function Header() {
                   {userData?.role ? roleText[userData.role as keyof typeof roleText] : 'Người dùng'}
                 </p>
               </div>
-              <div className="py-1">
+              {/* <div className="py-1">
                 <Menu.Item>
                   {({ active }) => (
                     <a
@@ -72,7 +72,7 @@ export default function Header() {
                     </a>
                   )}
                 </Menu.Item>
-              </div>
+              </div> */}
               <div className="py-1">
                 <Menu.Item>
                   {({ active }) => (
